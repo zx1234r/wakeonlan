@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   wakeonlan:
-    build: .
+    image: ghcr.io/zx1234r/wakeonlan:latest
     container_name: wakeonlan-dashboard
     ports:
       - "5000:5000"
