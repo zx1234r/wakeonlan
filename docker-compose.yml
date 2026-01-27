@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  wakeonlan:
+    build: .
+    container_name: wakeonlan-dashboard
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - FLASK_ENV=production
+    restart: unless-stopped
+    # Note: host networking doesn't work on Windows Docker Desktop
+    # WoL packets will be sent from container's network namespace
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wakeonlan.rule=Host(`wakeonlan.local`)"
+      - "traefik.http.services.wakeonlan.loadbalancer.server.port=5000"
