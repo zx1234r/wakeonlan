@@ -2,28 +2,16 @@ version: '3.8'
 
 services:
   wakeonlan:
-    image: wakeonlan-dashboard:latest
+    image: ghcr.io/zx1234r/wakeonlan:latest
     container_name: wakeonlan-dashboard
-    ports:
-      - "5000:5000"
+    network_mode: host
     volumes:
       - wakeonlan_data:/app/data
     environment:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
-    networks:
-      - wakeonlan_network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.wakeonlan.rule=Host(`wakeonlan.yourdomain.com`)"
-      - "traefik.http.services.wakeonlan.loadbalancer.server.port=5000"
-      - "traefik.docker.network=wakeonlan_network"
 
 volumes:
   wakeonlan_data:
     driver: local
-
-networks:
-  wakeonlan_network:
-    driver: bridge
