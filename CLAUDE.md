@@ -19,8 +19,7 @@ Single-page app with device CRUD and one-click wake. No auth — internal networ
 app.py                    # All backend logic (routes + WoL socket code)
 templates/index.html      # Single frontend template
 data/devices.json         # Persistent device store (volume-mounted)
-docker-compose.yml        # Local dev / bridge-network deployment
-portainer-stack.yml       # Portainer deployment (bridge network)
+docker-compose.yml        # Deployment file (used by Portainer and local dev)
 Dockerfile                # python:3.11-slim, port 5000, /app/data volume
 requirements.txt          # flask, werkzeug only
 ```
@@ -81,10 +80,10 @@ or use an alternative tool on the Windows host directly.
 ```
 
 ## Deployment
-- **Portainer stack**: `portainer-stack.yml` (currently bridge network — see issue above)
-- **docker-compose**: `docker-compose.yml` (same bridge issue on Windows)
+- **File**: `docker-compose.yml` (used by Portainer and local dev)
+- **Network**: `network_mode: host` — required for WoL broadcasts to reach physical LAN
 - **Port**: 5000 (web UI)
-- **Volume**: `/app/data` must be mounted for persistence
+- **Volume**: `/opt/wakeonlan/data:/app/data` — bind mount on Docker host for persistent devices
 
 ## Environment Variables
 | Variable | Default | Purpose |
