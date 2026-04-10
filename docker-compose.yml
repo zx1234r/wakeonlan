@@ -6,7 +6,7 @@ services:
     container_name: wakeonlan-dashboard
     network_mode: host
     volumes:
-      - ./data:/app/data
+      - /opt/wakeonlan/data:/app/data
     environment:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
