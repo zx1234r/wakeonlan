@@ -4,356 +4,628 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wake-on-LAN Dashboard</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        * {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --void-black: #0f0f0f;
+            --pure-black: #000000;
+            --pure-white: #ffffff;
+            --ghost-white: rgba(255,255,255,0.6);
+            --whisper-white: rgba(255,255,255,0.5);
+            --phantom-white: rgba(255,255,255,0.2);
+            --muted-smoke: #444444;
+            --cobalt: #0007cd;
+            --cyan: #00ffff;
+            --signal-blue: #0089ff;
+            --ocean-blue: #0096ff;
+            --charcoal: #2c2c2c;
+            --border-12: rgba(255,255,255,0.12);
+            --border-10: rgba(255,255,255,0.10);
+            --border-08: rgba(255,255,255,0.08);
+            --border-06: rgba(255,255,255,0.06);
+            --border-04: rgba(255,255,255,0.04);
+            --cyan-glow: rgba(0,255,255,0.12);
+            --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--font-sans);
+            background: var(--void-black);
             min-height: 100vh;
-            color: #333;
+            color: var(--pure-white);
+            -webkit-font-smoothing: antialiased;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        /* NAV */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--void-black);
+            border-bottom: 1px solid var(--border-06);
+            padding: 0 32px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .card h2 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #333;
+        .nav-logo {
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
+            font-size: 15px;
             font-weight: 500;
-            color: #555;
+            letter-spacing: -0.01em;
+            color: var(--pure-white);
         }
 
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
+        .nav-logo svg {
+            color: var(--cyan);
         }
 
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
+        /* BUTTONS */
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
             display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 20px;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 400;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.15s, box-shadow 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn:hover { opacity: 0.85; }
+        .btn:active { opacity: 0.7; }
+
+        .btn-primary {
+            background: var(--pure-white);
+            color: #111;
+        }
+
+        .btn-cyan {
+            background: var(--cyan-glow);
+            color: var(--pure-white);
+            border: 1px solid var(--ocean-blue);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--ghost-white);
+            border: 1px solid var(--charcoal);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--signal-blue);
+            color: var(--pure-white);
+            opacity: 1;
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: rgba(255,80,80,0.8);
+            border: 1px solid rgba(255,80,80,0.25);
+        }
+
+        .btn-danger:hover {
+            border-color: rgba(255,80,80,0.6);
+            color: #ff5050;
+            opacity: 1;
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 13px;
+        }
+
+        /* LAYOUT */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 32px;
+        }
+
+        .hero {
+            margin-bottom: 48px;
+        }
+
+        .hero-label {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            color: var(--cyan);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .hero h1 {
+            font-size: 40px;
+            font-weight: 400;
+            line-height: 1.0;
+            letter-spacing: -0.02em;
+            color: var(--pure-white);
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            font-size: 15px;
+            color: var(--ghost-white);
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--pure-black);
+            border: 1px solid var(--border-10);
+            border-radius: 4px;
+            padding: 24px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--pure-white);
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-06);
+            display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        .card-title svg {
+            color: var(--ghost-white);
+            flex-shrink: 0;
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-        }
-
-        .devices-grid {
+        /* STATS ROW */
+        .stats-row {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border-06);
+            border: 1px solid var(--border-08);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 24px;
         }
 
-        .device-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            border: 1px solid #e1e5e9;
-        }
-
-        .device-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-
-        .device-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-
-        .device-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .device-mac {
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            color: #666;
-            background: #f8f9fa;
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-
-        .device-info {
-            margin: 15px 0;
-        }
-
-        .device-info p {
-            margin: 5px 0;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .device-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn-small {
-            padding: 8px 16px;
-            font-size: 12px;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e1e5e9;
-        }
-
-        .stat {
+        .stat-cell {
+            background: var(--pure-black);
+            padding: 20px 16px;
             text-align: center;
         }
 
         .stat-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
+            font-family: var(--font-mono);
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--pure-white);
+            line-height: 1;
+            margin-bottom: 6px;
         }
 
         .stat-label {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 2px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: var(--ghost-white);
         }
 
+        /* FORM */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            color: var(--ghost-white);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: transparent;
+            border: 1px solid var(--border-10);
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            color: var(--pure-white);
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+            resize: none;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--muted-smoke);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--signal-blue);
+            box-shadow: 0 0 0 2px rgba(0,137,255,0.15);
+        }
+
+        .form-group input[type="text"]:valid:not(:placeholder-shown) {
+            border-color: var(--border-12);
+        }
+
+        /* DEVICE GRID */
+        .devices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .device-card {
+            background: var(--pure-black);
+            border: 1px solid var(--border-10);
+            border-radius: 4px;
+            padding: 20px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            position: relative;
+        }
+
+        .device-card:hover {
+            border-color: var(--border-12);
+            box-shadow: rgba(0,0,0,0.5) 4px 4px 0px 0px;
+        }
+
+        .device-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan-glow), transparent);
+            border-radius: 4px 4px 0 0;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .device-card:hover::before {
+            opacity: 1;
+        }
+
+        .device-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--pure-white);
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+
+        .device-mac {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--cyan);
+            letter-spacing: -0.2px;
+            margin-bottom: 12px;
+        }
+
+        .device-meta {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .device-meta span {
+            font-size: 13px;
+            color: var(--ghost-white);
+        }
+
+        .device-meta .meta-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.3px;
+            color: var(--muted-smoke);
+            text-transform: uppercase;
+        }
+
+        .device-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-06);
+        }
+
+        .device-stats {
+            display: flex;
+            gap: 16px;
+        }
+
+        .device-stat {
+            text-align: left;
+        }
+
+        .device-stat-value {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--pure-white);
+            line-height: 1;
+        }
+
+        .device-stat-label {
+            font-size: 10px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            color: var(--muted-smoke);
+            margin-top: 3px;
+        }
+
+        .device-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* EMPTY STATE */
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            color: #666;
+            padding: 64px 24px;
+            color: var(--ghost-white);
+            border: 1px dashed var(--border-08);
+            border-radius: 4px;
         }
 
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.3;
+        .empty-state svg {
+            margin-bottom: 16px;
+            color: var(--muted-smoke);
         }
 
+        .empty-state h3 {
+            font-size: 15px;
+            font-weight: 400;
+            color: var(--ghost-white);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            color: var(--muted-smoke);
+        }
+
+        /* TOAST */
         .toast {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: white;
-            padding: 16px 20px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: var(--pure-black);
+            border: 1px solid var(--border-12);
+            padding: 12px 18px;
+            border-radius: 4px;
+            box-shadow: rgba(0,0,0,0.6) 0px 8px 32px;
             z-index: 1000;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            border-left: 4px solid #28a745;
+            transform: translateX(440px);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--pure-white);
+            max-width: 360px;
         }
 
         .toast.show {
             transform: translateX(0);
         }
 
-        .toast.error {
-            border-left-color: #dc3545;
+        .toast-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--cyan);
+            flex-shrink: 0;
         }
 
-        .global-actions {
-            text-align: center;
-            margin-bottom: 30px;
+        .toast.error .toast-dot {
+            background: #ff5050;
         }
 
-        @media (max-width: 768px) {
-            .dashboard {
+        /* DIVIDER */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--ghost-white);
+        }
+
+        .section-count {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--muted-smoke);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .layout {
                 grid-template-columns: 1fr;
             }
-            
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px 16px;
+            }
+
+            nav {
+                padding: 0 16px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
             .devices-grid {
                 grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-broadcast-tower"></i> Wake-on-LAN Dashboard</h1>
-            <p>Remotely wake up your network devices with ease</p>
+
+    <!-- NAV -->
+    <nav>
+        <div class="nav-logo">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636a9 9 0 1 0 12.728 0M12 3v9"/>
+            </svg>
+            Wake-on-LAN
         </div>
-
-        <div class="dashboard">
-            <div class="card">
-                <h2><i class="fas fa-plus-circle"></i> Add New Device</h2>
-                <form id="deviceForm">
-                    <div class="form-group">
-                        <label for="deviceName">Device Name *</label>
-                        <input type="text" id="deviceName" name="name" placeholder="My Computer" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="deviceMac">MAC Address *</label>
-                        <input type="text" id="deviceMac" name="mac" placeholder="XX:XX:XX:XX:XX:XX" required pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$">
-                    </div>
-                    <div class="form-group">
-                        <label for="deviceIp">IP Address</label>
-                        <input type="text" id="deviceIp" name="ip" placeholder="192.168.1.100">
-                    </div>
-                    <div class="form-group">
-                        <label for="deviceDescription">Description</label>
-                        <textarea id="deviceDescription" name="description" placeholder="Gaming PC in living room" rows="3"></textarea>
-                    </div>
-                    <button type="submit" class="btn">
-                        <i class="fas fa-plus"></i> Add Device
-                    </button>
-                </form>
-            </div>
-
-            <div class="card">
-                <h2><i class="fas fa-chart-bar"></i> Dashboard Stats</h2>
-                <div class="stats">
-                    <div class="stat">
-                        <div class="stat-value" id="totalDevices">0</div>
-                        <div class="stat-label">Total Devices</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value" id="totalWakes">0</div>
-                        <div class="stat-label">Total Wakes</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value" id="lastWake">Never</div>
-                        <div class="stat-label">Last Wake</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="global-actions">
-            <button class="btn btn-success" onclick="wakeAllDevices()">
-                <i class="fas fa-power-off"></i> Wake All Devices
+        <div class="nav-actions">
+            <button class="btn btn-cyan" onclick="wakeAllDevices()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+                Wake All
             </button>
         </div>
+    </nav>
 
-        <div class="card">
-            <h2><i class="fas fa-desktop"></i> Your Devices</h2>
-            <div id="devicesContainer">
-                <div class="empty-state">
-                    <i class="fas fa-desktop"></i>
-                    <h3>No devices added yet</h3>
-                    <p>Add your first device using the form above</p>
+    <div class="container">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="hero-label">Network Control</div>
+            <h1>Device Dashboard</h1>
+            <p>Send Wake-on-LAN magic packets to power up devices on your network.</p>
+        </div>
+
+        <!-- STATS ROW -->
+        <div class="stats-row">
+            <div class="stat-cell">
+                <div class="stat-value" id="totalDevices">0</div>
+                <div class="stat-label">Devices</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-value" id="totalWakes">0</div>
+                <div class="stat-label">Total Wakes</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-value" id="lastWake" style="font-size:14px; padding-top:5px;">—</div>
+                <div class="stat-label">Last Wake</div>
+            </div>
+        </div>
+
+        <!-- MAIN LAYOUT -->
+        <div class="layout">
+
+            <!-- SIDEBAR: ADD DEVICE -->
+            <div>
+                <div class="card">
+                    <div class="card-title">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Device
+                    </div>
+                    <form id="deviceForm">
+                        <div class="form-group">
+                            <label for="deviceName">Name</label>
+                            <input type="text" id="deviceName" name="name" placeholder="Gaming PC" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="deviceMac">MAC Address</label>
+                            <input type="text" id="deviceMac" name="mac"
+                                placeholder="XX:XX:XX:XX:XX:XX" required
+                                pattern="^([0-9A-Fa-f]{2}[:\-]){5}([0-9A-Fa-f]{2})$"
+                                style="font-family: var(--font-mono); font-size: 13px; letter-spacing: -0.2px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="deviceIp">IP Address <span style="color:var(--muted-smoke); text-transform:none; font-weight:400;">(optional)</span></label>
+                            <input type="text" id="deviceIp" name="ip" placeholder="192.168.1.100">
+                        </div>
+                        <div class="form-group">
+                            <label for="deviceDescription">Description <span style="color:var(--muted-smoke); text-transform:none; font-weight:400;">(optional)</span></label>
+                            <textarea id="deviceDescription" name="description" placeholder="Office workstation" rows="2"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
+                            Add Device
+                        </button>
+                    </form>
                 </div>
             </div>
+
+            <!-- MAIN: DEVICES -->
+            <div>
+                <div class="section-header">
+                    <span class="section-title">Your Devices</span>
+                    <span class="section-count" id="deviceCount">0 devices</span>
+                </div>
+                <div id="devicesContainer">
+                    <div class="empty-state">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <rect x="2" y="3" width="20" height="14" rx="2"/>
+                            <path d="M8 21h8M12 17v4"/>
+                        </svg>
+                        <h3>No devices added yet</h3>
+                        <p>Add your first device using the form.</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
+    <!-- TOAST -->
     <div id="toast" class="toast">
+        <div class="toast-dot"></div>
         <div id="toastMessage"></div>
     </div>
 
     <script>
         let devices = [];
 
-        // Load devices on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDevices();
-        });
+        document.addEventListener('DOMContentLoaded', loadDevices);
 
-        // Add device form submission
         document.getElementById('deviceForm').addEventListener('submit', function(e) {
             e.preventDefault();
             addDevice();
@@ -365,7 +637,7 @@
                 devices = await response.json();
                 renderDevices();
                 updateStats();
-            } catch (error) {
+            } catch {
                 showToast('Error loading devices', 'error');
             }
         }
@@ -373,171 +645,141 @@
         async function addDevice() {
             const formData = new FormData(document.getElementById('deviceForm'));
             const deviceData = Object.fromEntries(formData);
-
             try {
                 const response = await fetch('/api/devices', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(deviceData)
                 });
-
                 const result = await response.json();
-                
                 if (result.success) {
-                    showToast('Device added successfully!');
+                    showToast('Device added');
                     document.getElementById('deviceForm').reset();
                     loadDevices();
                 } else {
                     showToast(result.message, 'error');
                 }
-            } catch (error) {
+            } catch {
                 showToast('Error adding device', 'error');
             }
         }
 
         async function deleteDevice(deviceId) {
-            if (!confirm('Are you sure you want to delete this device?')) {
-                return;
-            }
-
+            if (!confirm('Delete this device?')) return;
             try {
-                const response = await fetch(`/api/devices/${deviceId}`, {
-                    method: 'DELETE'
-                });
-
-                if (response.ok) {
-                    showToast('Device deleted successfully!');
-                    loadDevices();
-                } else {
-                    showToast('Error deleting device', 'error');
-                }
-            } catch (error) {
+                await fetch(`/api/devices/${deviceId}`, { method: 'DELETE' });
+                showToast('Device removed');
+                loadDevices();
+            } catch {
                 showToast('Error deleting device', 'error');
             }
         }
 
         async function wakeDevice(deviceId) {
             try {
-                const response = await fetch(`/api/wake/${deviceId}`, {
-                    method: 'POST'
-                });
-
+                const response = await fetch(`/api/wake/${deviceId}`, { method: 'POST' });
                 const result = await response.json();
-                
                 if (result.success) {
-                    showToast(`Wake-on-LAN packet sent to ${result.device.name}!`);
-                    loadDevices(); // Refresh to show updated stats
+                    showToast(`Packet sent → ${result.device.name}`);
+                    loadDevices();
                 } else {
                     showToast(result.message, 'error');
                 }
-            } catch (error) {
-                showToast('Error sending wake packet', 'error');
+            } catch {
+                showToast('Error sending packet', 'error');
             }
         }
 
         async function wakeAllDevices() {
-            if (devices.length === 0) {
-                showToast('No devices to wake', 'error');
-                return;
-            }
-
+            if (devices.length === 0) { showToast('No devices registered', 'error'); return; }
             try {
-                const response = await fetch('/api/wake-all', {
-                    method: 'POST'
-                });
-
+                const response = await fetch('/api/wake-all', { method: 'POST' });
                 const result = await response.json();
-                
                 if (result.success) {
-                    const successCount = result.results.filter(r => r.success).length;
-                    showToast(`Wake packets sent to ${successCount} device(s)!`);
-                    loadDevices(); // Refresh to show updated stats
+                    const n = result.results.filter(r => r.success).length;
+                    showToast(`Packets sent to ${n} device${n !== 1 ? 's' : ''}`);
+                    loadDevices();
                 } else {
                     showToast('Error waking devices', 'error');
                 }
-            } catch (error) {
+            } catch {
                 showToast('Error waking devices', 'error');
             }
         }
 
         function renderDevices() {
             const container = document.getElementById('devicesContainer');
-            
+            const countEl = document.getElementById('deviceCount');
+            countEl.textContent = `${devices.length} device${devices.length !== 1 ? 's' : ''}`;
+
             if (devices.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-desktop"></i>
+                        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <rect x="2" y="3" width="20" height="14" rx="2"/>
+                            <path d="M8 21h8M12 17v4"/>
+                        </svg>
                         <h3>No devices added yet</h3>
-                        <p>Add your first device using the form above</p>
-                    </div>
-                `;
+                        <p>Add your first device using the form.</p>
+                    </div>`;
                 return;
             }
 
-            const devicesHTML = devices.map(device => `
+            container.innerHTML = `<div class="devices-grid">${devices.map(d => `
                 <div class="device-card">
-                    <div class="device-header">
-                        <div>
-                            <div class="device-name">${device.name}</div>
-                            <div class="device-mac">${device.mac}</div>
+                    <div class="device-name">${escHtml(d.name)}</div>
+                    <div class="device-mac">${escHtml(d.mac)}</div>
+                    <div class="device-meta">
+                        ${d.ip ? `<span><span class="meta-label">IP </span>${escHtml(d.ip)}</span>` : ''}
+                        ${d.description ? `<span>${escHtml(d.description)}</span>` : ''}
+                    </div>
+                    <div class="device-footer">
+                        <div class="device-stats">
+                            <div class="device-stat">
+                                <div class="device-stat-value">${d.wake_count || 0}</div>
+                                <div class="device-stat-label">Wakes</div>
+                            </div>
+                            <div class="device-stat">
+                                <div class="device-stat-value" style="font-size:12px;">${d.last_woken ? formatDate(d.last_woken) : '—'}</div>
+                                <div class="device-stat-label">Last</div>
+                            </div>
+                        </div>
+                        <div class="device-actions">
+                            <button class="btn btn-cyan btn-sm" onclick="wakeDevice(${d.id})">Wake</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteDevice(${d.id})">
+                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
-                    <div class="device-info">
-                        ${device.ip ? `<p><i class="fas fa-network-wired"></i> IP: ${device.ip}</p>` : ''}
-                        ${device.description ? `<p><i class="fas fa-info-circle"></i> ${device.description}</p>` : ''}
-                    </div>
-                    <div class="device-actions">
-                        <button class="btn btn-success btn-small" onclick="wakeDevice(${device.id})">
-                            <i class="fas fa-power-off"></i> Wake Up
-                        </button>
-                        <button class="btn btn-danger btn-small" onclick="deleteDevice(${device.id})">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
-                    <div class="stats">
-                        <div class="stat">
-                            <div class="stat-value">${device.wake_count || 0}</div>
-                            <div class="stat-label">Wake Count</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value">${device.last_woken ? new Date(device.last_woken).toLocaleDateString() : 'Never'}</div>
-                            <div class="stat-label">Last Woken</div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            container.innerHTML = `<div class="devices-grid">${devicesHTML}</div>`;
+                </div>`).join('')}</div>`;
         }
 
         function updateStats() {
             document.getElementById('totalDevices').textContent = devices.length;
-            
-            const totalWakes = devices.reduce((sum, device) => sum + (device.wake_count || 0), 0);
+            const totalWakes = devices.reduce((sum, d) => sum + (d.wake_count || 0), 0);
             document.getElementById('totalWakes').textContent = totalWakes;
-            
-            const lastWakeDevice = devices
-                .filter(d => d.last_woken)
-                .sort((a, b) => new Date(b.last_woken) - new Date(a.last_woken))[0];
-            
-            document.getElementById('lastWake').textContent = lastWakeDevice 
-                ? new Date(lastWakeDevice.last_woken).toLocaleString()
-                : 'Never';
+            const latest = devices.filter(d => d.last_woken).sort((a,b) => new Date(b.last_woken)-new Date(a.last_woken))[0];
+            document.getElementById('lastWake').textContent = latest ? formatDate(latest.last_woken) : '—';
+        }
+
+        function formatDate(iso) {
+            const d = new Date(iso);
+            return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function escHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         }
 
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            
-            toastMessage.textContent = message;
+            document.getElementById('toastMessage').textContent = message;
             toast.className = `toast ${type}`;
             toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            clearTimeout(toast._t);
+            toast._t = setTimeout(() => toast.classList.remove('show'), 3000);
         }
     </script>
 </body>
