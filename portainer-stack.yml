@@ -6,12 +6,8 @@ services:
     container_name: wakeonlan-dashboard
     network_mode: host
     volumes:
-      - wakeonlan_data:/app/data
+      - /opt/wakeonlan/data:/app/data
     environment:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
-
-volumes:
-  wakeonlan_data:
-    driver: local
